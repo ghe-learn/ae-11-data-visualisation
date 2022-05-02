@@ -110,11 +110,16 @@ waste_gdp_data <- global_waste_data_kg_year %>%
 ```{r}
 
 ggplot(data = waste_gdp_data,
-       mapping = aes(x = log(gdp_capita), 
+       mapping = aes(x = gdp_capita, 
                      y = capita_kg_year, 
                      shape = income_id, 
                      color = income_id)) +
-  geom_point()
+  geom_point() +
+  scale_x_log10()
+
+
+waste_gdp_data %>% 
+  mutate(log = log(gdp_capita))
 
 ```
 
