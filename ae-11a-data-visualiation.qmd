@@ -2,5 +2,124 @@
 title: "Untitled"
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r}
+
+# I am lading the needed packages at the beginning of the script
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(WDI)
+
+```
+
+# Data import
+
+## What a waste!
+
+https://datacatalog.worldbank.org/search/dataset/0039597
+
+The data we use comes from ... [TODO].
+
+```{r}
+global_waste_data <- read_csv("data/raw_data/country_level_data_0.csv")
+```
+
+## World Development Indicators (WDI)
+
+GitHub repo: https://github.com/vincentarelbundock/WDI
+R Package Documentation: http://vincentarelbundock.github.io/WDI/
+
+```{r}
+
+
+WDIsearch("GDP per capita ")
+
+gdp_data <- WDI(indicator = "NY.GDP.PCAP.CD", start = 2019, end = 2019) 
+
+```
+
+# Data tidying
+
+## Waste data
+
+```{r}
+
+global_waste_data_small <- global_waste_data %>% 
+  select(country_name, 
+         iso3c, 
+         income_id, 
+         total_msw_total_msw_generated_tons_year, 
+         population_population_number_of_people) %>%  
+  rename(msw_tons_year = total_msw_total_msw_generated_tons_year,
+         population = population_population_number_of_people) 
+
+```
+
+## GDP data
+
+```{r}
+
+gdp_data_tidy <- gdp_data %>% 
+  as_tibble() %>% 
+  rename(gdp_capita = NY.GDP.PCAP.CD)
+  
+```
+
+
+# Data transformation
+
+## Waste data
+
+```{r}
+
+global_waste_data_kg_year <- global_waste_data_small %>% 
+  mutate(capita_kg_year = msw_tons_year / population * 1000) %>% 
+  mutate(income_id = factor(income_id, 
+                            levels = c("HIC", "UMC", "LMC", "LIC"))) %>% 
+  select(country_name:income_id, capita_kg_year)
+
+```
+
+## GDP data
+
+```{r}
+
+gdp_data_join <- gdp_data_tidy %>%
+  mutate(iso3c = countrycode(iso2c, origin = "iso2c", destination = "iso3c")) %>% 
+  filter(!is.na(iso3c)) 
+
+```
+
+## Joining two datasets
+
+```{r}
+
+waste_gdp_data <- global_waste_data_kg_year %>% 
+  left_join(gdp_data_join) %>% 
+  select(country_name, iso3c, income_id, capita_kg_year, gdp_capita, year)
+
+```
+
+# Data visualisation
+
+```{r}
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = log(gdp_capita), 
+                     y = capita_kg_year, 
+                     shape = income_id, 
+                     color = income_id)) +
+  geom_point()
+
+```
+
+
+# Data modeling
+
+# Data communication
 
