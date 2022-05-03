@@ -1,7 +1,162 @@
 ---
-title: "Untitled"
+title: "Programming Exercise - Data Visualisation"
 format: html
 editor: visual
+bibliography: references.bib
+execute:
+  echo: true
+  message: false
+  warning: false
+editor_options: 
+  chunk_output_type: console
 ---
 
-## 
+
+# Task 0: Load R packages
+
+```{r}
+
+library(gapminder)
+library(ggplot2)
+library(dplyr)
+
+```
+
+# Task 1: Data import
+
+```{r}
+
+```
+
+# Task 2: Data tidying 
+
+```{r}
+
+```
+
+
+# Task 3: Data transformation
+
+```{r}
+
+# A subset only for 2007
+
+gapminder_yr_2007 <- gapminder %>% 
+  filter(year == 2007)
+
+
+
+# A subset for median life expectancy in 2007 by continent
+
+gapminder_summary_continent_2007 <- gapminder_yr_2007 %>% 
+  group_by(continent) %>% 
+  summarise(
+    count = n(),
+    lifeExp = median(lifeExp)
+    )
+
+# A subest for median life expectancy by continent and year
+
+gapminder_summary_continent_year <- gapminder %>%
+  group_by(continent, year) %>% 
+  summarise(lifeExp = median(lifeExp))
+
+```
+
+# Task 4: Data visualisation
+
+## Geoms
+
+### Scatterplot
+
+```{r}
+
+ggplot(data = gapminder_yr_2007,
+       mapping = aes(x = gdpPercap,
+                     y = lifeExp,
+                     size = pop,
+                     color = continent)) +
+  geom_point() +
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 100000))  
+
+```
+
+
+### Boxplot
+
+```{r}
+
+ggplot(data = gapminder_yr_2007,
+       mapping = aes(x = continent,
+                     y = lifeExp,
+                     fill = continent)) +
+  geom_boxplot(outlier.shape = NA) 
+
+```
+
+### Timeseries plot
+
+- Connected scatterplot
+
+```{r}
+
+ggplot(data = gapminder_summary_continent_year,
+       mapping = aes(x = year,
+                     y = lifeExp,
+                     color = continent)) +
+  geom_line() +
+  geom_point() 
+
+```
+
+### Barplot 
+
+- Frequency plot
+
+```{r}
+
+ggplot(data = gapminder_summary_continent_2007,
+       mapping = aes(x = continent,
+                     y = count)) +
+  geom_col()
+```
+
+
+### Histogram
+
+```{r}
+
+ggplot(data = gapminder_yr_2007,
+       mapping = aes(x = lifeExp, fill = continent)) +
+  geom_histogram(col = "grey30", breaks = seq(40, 85, 2.5)) 
+
+```
+
+## Faceting
+
+```{r}
+
+ggplot(data = gapminder,
+       aes(x = year, 
+           y = lifeExp, 
+           group = country, 
+           color = country)) +
+  geom_line(lwd = 1) + 
+  facet_wrap(~ continent) +
+  scale_color_manual(values = country_colors) +
+  theme_bw() +
+  theme(legend.position = "none") 
+
+```
+
+
+# Task 5: Data communication
+
+
+
+# Task 6: Complete assignment
+
+Open an issue on the repo for this exercise to let us know you completed it. Use the @larnsce mention.
+
+# References
+
