@@ -1,14 +1,21 @@
 ---
-title: "Untitled"
-format: html
+title: "Application Exercise 11 - Data Visualisation"
+author: "Lars Schöbitz"
+format:
+  html:
+    toc: true
 editor: visual
 editor_options: 
   chunk_output_type: console
+execute:
+  echo: true
+  message: false
+  warning: false
 ---
 
 ```{r}
 
-# I am lading the needed packages at the beginning of the script
+# R Packages that are required for this script are loaded in the beginning
 
 library(readr)
 library(dplyr)
@@ -22,6 +29,10 @@ library(WDI)
 
 library(countrycode)
 
+# An R Package to work with model outputs
+
+library(broom)
+
 ```
 
 # Data import
@@ -29,8 +40,6 @@ library(countrycode)
 ## What a waste!
 
 https://datacatalog.worldbank.org/search/dataset/0039597
-
-The data we use comes from ... \[TODO\].
 
 ```{r}
 
@@ -199,8 +208,7 @@ ggplot(data = waste_gdp_data,
                      y = capita_kg_year,
                      color = income_id,
                      shape = income_id)) +
-  geom_point(size = 3, alpha = 3/4) +
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_point() +
   
   # https://scales.r-lib.org/reference/label_log.html
   scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
@@ -231,26 +239,139 @@ ggplot(data = waste_gdp_data,
 ```
 
 - defined for a geom only 
+- geom_text
 
 ```{r}
+
+waste_gdp_data_filter <- waste_gdp_data %>% 
+  filter(capita_kg_year > 850 | 
+           country_name == "Switzerland" |
+           country_name == "Canada")
 
 ggplot(data = waste_gdp_data,
        mapping = aes(x = gdp_capita, 
                      y = capita_kg_year)) +
   geom_point(size = 3, alpha = 3/4, 
-             aes(color = income_id,
-                 shape = income_id)) +
-  geom_smooth(method = "lm", se = FALSE) +
+             mapping = aes(color = income_id,
+                           shape = income_id)) +
+  geom_smooth(method = "lm", 
+              se = FALSE, 
+              color = "gray20", 
+              linetype = "longdash") +
+  geom_text(data = waste_gdp_data_filter,
+            mapping = aes(label = country_name), 
+            nudge_y = 50) +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1500)) +
+  scale_color_manual(values = my_colors)
+
+
+```
+
+## Labels
+
+```{r}
+
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year)) +
+  geom_point(size = 3, alpha = 3/4, 
+             mapping = aes(color = income_id,
+                           shape = income_id)) +
+  geom_smooth(method = "lm", 
+              se = FALSE, 
+              color = "gray20", 
+              linetype = "longdash") +
+  geom_text(data = waste_gdp_data_filter,
+            mapping = aes(label = country_name), 
+            nudge_y = 50) +
   
   # https://scales.r-lib.org/reference/label_log.html
   scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
   scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) +
-  scale_color_manual(values = my_colors)
+  scale_color_manual(values = my_colors) +
+  labs(title = "Municipal Solid Waste Generation",
+       subtitle = "Increasing income results in greater solid waste generation",
+       x = "GDP per capity (USD)",
+       y = "MSW generation pert capity (kg/yr)",
+       color = "Income categories",
+       shape = "Income categories",
+       caption = "Data: World Bank World Development Indicators and What a Waste Global Database."
+  ) 
+
+
 ```
 
 
-## 
+## Theme
+
+A reference to @fig-plot-waste-gdp.
+
+```{r}
+
+#| label: fig-plot-waste-gdp
+#| fig-cap: "Global Municipal Solid Waste generation over GPD per capita, illustrated by defined income groups."
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year)) +
+  geom_point(size = 3, alpha = 3/4, 
+             mapping = aes(color = income_id,
+                           shape = income_id)) +
+  geom_smooth(method = "lm", 
+              se = FALSE, 
+              color = "gray20", 
+              linetype = "longdash") +
+  geom_text(data = waste_gdp_data_filter,
+            mapping = aes(label = country_name), 
+            nudge_y = 50) +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) +
+  scale_color_manual(values = my_colors) +
+  labs(title = "Municipal Solid Waste Generation",
+       subtitle = "Increasing income results in greater solid waste generation",
+       x = "GDP per capity (USD)",
+       y = "MSW generation pert capity (kg/yr)",
+       color = "Income categories",
+       shape = "Income categories",
+       caption = "Data: World Bank World Development Indicators and What a Waste Global Database."
+  ) +
+  theme_minimal(base_size = 12, base_family = "Arial") +
+  theme(legend.position = c(0.20, 0.80),
+        plot.title.position = "plot",
+        plot.caption = element_text(face = "italic", color = "grey70"),
+        legend.background = element_rect(fill = "white", colour = "grey50"),
+        panel.grid.minor = element_blank()) 
+```
 
 # Data modeling
 
+- https://broom.tidymodels.org/articles/broom.html
+
+```{r}
+
+lmfit <- lm(capita_kg_year ~ gdp_capita, data = waste_gdp_data)
+
+summary(lmfit)
+
+tidy(lmfit) %>% 
+  knitr::kable(digits = 2)
+
+glance(lmfit) %>% 
+  knitr::kable(digits = 2)
+
+
+```
+
 # Data communication
+
+Let's add a table of contents and an author with affiliation to the document.
+
+You can learn more about the options for HTML files in the Quarto documentation: https://quarto.org/docs/reference/formats/html.html
+
+
