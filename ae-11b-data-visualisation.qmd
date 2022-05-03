@@ -132,6 +132,29 @@ ggplot(data = gapminder_yr_2007,
 
 ```
 
+### Maps
+
+More here: https://bookdown.org/alhdzsz/data_viz_ir/maps.html
+
+```{r}
+
+library(sf)
+library(rnaturalearth)
+
+world <- ne_countries(scale = "small", returnclass = "sf")
+
+world %>% 
+  mutate(income_grp = factor(income_grp, ordered = T)) %>% 
+  ggplot() + 
+  geom_sf(aes(fill = income_grp)) +
+  theme_void() +
+  theme(legend.position = "top") +
+  labs(fill = "Income Group:") +
+  guides(fill=guide_legend(nrow=2, byrow=TRUE))
+
+```
+
+
 ## Faceting
 
 ```{r}
