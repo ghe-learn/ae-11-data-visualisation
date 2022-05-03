@@ -13,7 +13,14 @@ editor_options:
 library(readr)
 library(dplyr)
 library(ggplot2)
+
+# An R package to access the World Bank World Development Indicator timeseries
+
 library(WDI)
+
+# An R package for working with country codes
+
+library(countrycode)
 
 ```
 
@@ -23,16 +30,18 @@ library(WDI)
 
 https://datacatalog.worldbank.org/search/dataset/0039597
 
-The data we use comes from ... [TODO].
+The data we use comes from ... \[TODO\].
 
 ```{r}
+
+# This code is copied from application exercise week 10
+
 global_waste_data <- read_csv("data/raw_data/country_level_data_0.csv")
 ```
 
 ## World Development Indicators (WDI)
 
-GitHub repo: https://github.com/vincentarelbundock/WDI
-R Package Documentation: http://vincentarelbundock.github.io/WDI/
+GitHub repo: https://github.com/vincentarelbundock/WDI R Package Documentation: http://vincentarelbundock.github.io/WDI/
 
 ```{r}
 
@@ -41,6 +50,7 @@ WDIsearch("GDP per capita ")
 
 gdp_data <- WDI(indicator = "NY.GDP.PCAP.CD", start = 2019, end = 2019) 
 
+
 ```
 
 # Data tidying
@@ -48,6 +58,8 @@ gdp_data <- WDI(indicator = "NY.GDP.PCAP.CD", start = 2019, end = 2019)
 ## Waste data
 
 ```{r}
+
+# This code is copied from application exercise week 10
 
 global_waste_data_small <- global_waste_data %>% 
   select(country_name, 
@@ -67,9 +79,8 @@ global_waste_data_small <- global_waste_data %>%
 gdp_data_tidy <- gdp_data %>% 
   as_tibble() %>% 
   rename(gdp_capita = NY.GDP.PCAP.CD)
-  
-```
 
+```
 
 # Data transformation
 
@@ -77,10 +88,13 @@ gdp_data_tidy <- gdp_data %>%
 
 ```{r}
 
+# This code is copied from application exercise week 10
+
 global_waste_data_kg_year <- global_waste_data_small %>% 
   mutate(capita_kg_year = msw_tons_year / population * 1000) %>% 
   mutate(income_id = factor(income_id, 
                             levels = c("HIC", "UMC", "LMC", "LIC"))) %>% 
+  # select relevant columns
   select(country_name:income_id, capita_kg_year)
 
 ```
@@ -101,30 +115,142 @@ gdp_data_join <- gdp_data_tidy %>%
 
 waste_gdp_data <- global_waste_data_kg_year %>% 
   left_join(gdp_data_join) %>% 
-  select(country_name, iso3c, income_id, capita_kg_year, gdp_capita, year)
+  select(country_name:capita_kg_year, gdp_capita, year)
 
 ```
 
 # Data visualisation
 
+## Aesthetic mappings
+
 ```{r}
 
 ggplot(data = waste_gdp_data,
        mapping = aes(x = gdp_capita, 
-                     y = capita_kg_year, 
-                     shape = income_id, 
-                     color = income_id)) +
-  geom_point() +
-  scale_x_log10()
-
-
-waste_gdp_data %>% 
-  mutate(log = log(gdp_capita))
+                     y = capita_kg_year)) +
+  geom_point()
 
 ```
 
+```{r}
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year,
+                     color = income_id,
+                     shape = income_id)) +
+  geom_point()
+
+```
+
+## Scaling
+
+### Axis scales 
+
+```{r}
+
+library(scales)
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year,
+                     color = income_id,
+                     shape = income_id)) +
+  geom_point() +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) 
+
+
+seq(from = 0, to = 1400, by = 200)
+c(0, 1400)
+
+```
+
+### Color scales
+
+- scale_color_brewer()
+
+```{r}
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year,
+                     color = income_id,
+                     shape = income_id)) +
+  geom_point() +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) +
+  scale_color_brewer(type = "qual", palette = "Set2")
+
+```
+
+- scale_color_manual()
+
+```{r}
+
+my_colors <- c("#ED6D37", "#901C6C", "#18A5C5", "#A6CE8F")
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year,
+                     color = income_id,
+                     shape = income_id)) +
+  geom_point(size = 3, alpha = 3/4) +
+  geom_smooth(method = "lm", se = FALSE) +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) +
+  scale_color_manual(values = my_colors)
+
+```
+
+## Geoms
+
+- defined globally in ggplot
+
+```{r}
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year,
+                     color = income_id,
+                     shape = income_id)) +
+  geom_point(size = 3, alpha = 3/4) +
+  geom_smooth(method = "lm", se = FALSE) +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) +
+  scale_color_manual(values = my_colors)
+
+```
+
+- defined for a geom only 
+
+```{r}
+
+ggplot(data = waste_gdp_data,
+       mapping = aes(x = gdp_capita, 
+                     y = capita_kg_year)) +
+  geom_point(size = 3, alpha = 3/4, 
+             aes(color = income_id,
+                 shape = income_id)) +
+  geom_smooth(method = "lm", se = FALSE) +
+  
+  # https://scales.r-lib.org/reference/label_log.html
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
+  scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) +
+  scale_color_manual(values = my_colors)
+```
+
+
+## 
 
 # Data modeling
 
 # Data communication
-
