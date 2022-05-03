@@ -44,8 +44,6 @@ library(dplyr)
 gapminder_yr_2007 <- gapminder %>% 
   filter(year == 2007)
 
-
-
 # A subset for median life expectancy in 2007 by continent
 
 gapminder_summary_continent_2007 <- gapminder_yr_2007 %>% 
@@ -75,11 +73,19 @@ ggplot(data = gapminder_yr_2007,
        mapping = aes(x = gdpPercap,
                      y = lifeExp,
                      size = pop,
-                     color = continent)) +
-  geom_point() +
-  scale_x_log10(labels = scales::label_log(), limits = c(100, 100000))  
+                     color = country)) +
+  geom_point(show.legend = FALSE) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 100000)) +
+  facet_wrap(~continent)
 
 ```
+
+```{r}
+
+
+```
+
 
 
 ### Boxplot
