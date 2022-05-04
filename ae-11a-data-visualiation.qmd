@@ -128,6 +128,12 @@ waste_gdp_data <- global_waste_data_kg_year %>%
 
 ```
 
+## Saving derived data
+
+```{r}
+write_csv(x = waste_gdp_data, file = "data/derived_data/waste-generation-gdp-data.csv")
+```
+
 # Data visualisation
 
 ## Aesthetic mappings
@@ -154,7 +160,7 @@ ggplot(data = waste_gdp_data,
 
 ## Scaling
 
-### Axis scales 
+### Axis scales
 
 ```{r}
 
@@ -179,7 +185,7 @@ c(0, 1400)
 
 ### Color scales
 
-- scale_color_brewer()
+-   scale_color_brewer()
 
 ```{r}
 
@@ -197,7 +203,7 @@ ggplot(data = waste_gdp_data,
 
 ```
 
-- scale_color_manual()
+-   scale_color_manual()
 
 ```{r}
 
@@ -219,7 +225,7 @@ ggplot(data = waste_gdp_data,
 
 ## Geoms
 
-- defined globally in ggplot
+-   defined globally in ggplot
 
 ```{r}
 
@@ -238,8 +244,8 @@ ggplot(data = waste_gdp_data,
 
 ```
 
-- defined for a geom only 
-- geom_text
+-   defined for a geom only
+-   geom_text
 
 ```{r}
 
@@ -305,7 +311,6 @@ ggplot(data = waste_gdp_data,
 
 ```
 
-
 ## Theme
 
 A reference to @fig-plot-waste-gdp.
@@ -351,7 +356,7 @@ ggplot(data = waste_gdp_data,
 
 # Data modeling
 
-- https://broom.tidymodels.org/articles/broom.html
+-   https://broom.tidymodels.org/articles/broom.html
 
 ```{r}
 
@@ -373,5 +378,3 @@ glance(lmfit) %>%
 Let's add a table of contents and an author with affiliation to the document.
 
 You can learn more about the options for HTML files in the Quarto documentation: https://quarto.org/docs/reference/formats/html.html
-
-
