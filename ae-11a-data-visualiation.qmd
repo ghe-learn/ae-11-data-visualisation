@@ -1,6 +1,7 @@
 ---
 title: "Application Exercise 11 - Data Visualisation"
 author: "Lars Schöbitz"
+date: "2022-05-05"
 format:
   html:
     toc: true
@@ -39,7 +40,9 @@ library(broom)
 
 ## What a waste!
 
-https://datacatalog.worldbank.org/search/dataset/0039597
+What a Waste is a global project to aggregate data on solid waste management from around the world. This database features the statistics collected through the effort, covering nearly all countries and over 330 cities. Beyond waste generation, there are a long list of additina indicators in this dataset.
+
+- Source: https://datacatalog.worldbank.org/search/dataset/0039597
 
 ```{r}
 
@@ -50,15 +53,19 @@ global_waste_data <- read_csv("data/raw_data/country_level_data_0.csv")
 
 ## World Development Indicators (WDI)
 
-GitHub repo: https://github.com/vincentarelbundock/WDI R Package Documentation: http://vincentarelbundock.github.io/WDI/
+World Development Indicators (WDI) is the primary World Bank collection of development indicators, compiled from officially recognized international sources. It presents the most current and accurate global development data available, and includes national, regional and global estimates.
+
+- World Bank: https://databank.worldbank.org/source/world-development-indicators
+- GitHub repo: https://github.com/vincentarelbundock/WDI 
+- R Package Documentation: http://vincentarelbundock.github.io/WDI/
 
 ```{r}
 
+# Only walk through. No live coding.
 
 WDIsearch("GDP per capita ")
 
 gdp_data <- WDI(indicator = "NY.GDP.PCAP.CD", start = 2019, end = 2019) 
-
 
 ```
 
@@ -68,6 +75,7 @@ gdp_data <- WDI(indicator = "NY.GDP.PCAP.CD", start = 2019, end = 2019)
 
 ```{r}
 
+# Only walk through. No live coding.
 # This code is copied from application exercise week 10
 
 global_waste_data_small <- global_waste_data %>% 
@@ -85,6 +93,8 @@ global_waste_data_small <- global_waste_data %>%
 
 ```{r}
 
+# Only walk through. No live coding.
+
 gdp_data_tidy <- gdp_data %>% 
   as_tibble() %>% 
   rename(gdp_capita = NY.GDP.PCAP.CD)
@@ -98,6 +108,7 @@ gdp_data_tidy <- gdp_data %>%
 ```{r}
 
 # This code is copied from application exercise week 10
+# Only walk through. No live coding.
 
 global_waste_data_kg_year <- global_waste_data_small %>% 
   mutate(capita_kg_year = msw_tons_year / population * 1000) %>% 
@@ -112,6 +123,8 @@ global_waste_data_kg_year <- global_waste_data_small %>%
 
 ```{r}
 
+# Only walk through. No live coding.
+
 gdp_data_join <- gdp_data_tidy %>%
   mutate(iso3c = countrycode(iso2c, origin = "iso2c", destination = "iso3c")) %>% 
   filter(!is.na(iso3c)) 
@@ -122,21 +135,26 @@ gdp_data_join <- gdp_data_tidy %>%
 
 ```{r}
 
+# Only walk through. No live coding.
+
 waste_gdp_data <- global_waste_data_kg_year %>% 
   left_join(gdp_data_join) %>% 
   select(country_name:capita_kg_year, gdp_capita, year)
 
 ```
 
-## Saving derived data
-
-```{r}
-write_csv(x = waste_gdp_data, file = "data/derived_data/waste-generation-gdp-data.csv")
-```
-
 # Data visualisation
 
 ## Aesthetic mappings
+
+Main aesthetic mappings:
+
+- x
+- y
+- color/fill
+- shape
+- size
+- alpha (Transparency)
 
 ```{r}
 
@@ -160,11 +178,12 @@ ggplot(data = waste_gdp_data,
 
 ## Scaling
 
+All functions that adapt the scale start with `scale_` followed by the aesthetic to be adapted, e.g. `x_`, and then followed by the type of variable, e.g. `continouous`. So to adapt a continuous scale on an x-axis, the function to use is: `scale_x_continuous()` 
+
+
 ### Axis scales
 
 ```{r}
-
-library(scales)
 
 ggplot(data = waste_gdp_data,
        mapping = aes(x = gdp_capita, 
@@ -174,12 +193,16 @@ ggplot(data = waste_gdp_data,
   geom_point() +
   
   # https://scales.r-lib.org/reference/label_log.html
+  
   scale_x_log10(labels = scales::label_log(), limits = c(100, 150000))  +
   scale_y_continuous(breaks = seq(0, 1400, 200), limits = c(0, 1400)) 
 
 
-seq(from = 0, to = 1400, by = 200)
+# a numerical vector of length 2
 c(0, 1400)
+
+# a numerical vector of length 8
+seq(from = 0, to = 1400, by = 200)
 
 ```
 
@@ -225,7 +248,7 @@ ggplot(data = waste_gdp_data,
 
 ## Geoms
 
--   defined globally in ggplot
+Aesthetic mappings are typically defined within the `ggplot()` function. Everyone geom that follows will use the same aesthetic mappings to visualise the data. 
 
 ```{r}
 
@@ -244,6 +267,8 @@ ggplot(data = waste_gdp_data,
 
 ```
 
+
+If we want to define a mapping for one geom only, then the aesthetic mappings must be included in the function of that geom, here `geom_point()`. We can even use additional data in the same plot for an individual geom, see `geom_text()`.
 -   defined for a geom only
 -   geom_text
 
@@ -356,7 +381,13 @@ ggplot(data = waste_gdp_data,
 
 # Data modeling
 
--   https://broom.tidymodels.org/articles/broom.html
+Learn more about modeling in R:
+
+- R4DS chapter - https://r4ds.had.co.nz/model-intro.html
+- Book: Statistical Inference via Data Science: A ModernDive into R and the Tidyverse! - https://moderndive.com/
+- R Packages: Tidymodels - https://www.tidymodels.org/
+
+https://broom.tidymodels.org/articles/broom.html
 
 ```{r}
 
@@ -375,6 +406,8 @@ glance(lmfit) %>%
 
 # Data communication
 
-Let's add a table of contents and an author with affiliation to the document.
+Let's add a table of contents a date and an author to the document.
 
 You can learn more about the options for HTML files in the Quarto documentation: https://quarto.org/docs/reference/formats/html.html
+
+And to learn more about creating citeable articles, read here: https://quarto.org/docs/authoring/create-citeable-articles.html
