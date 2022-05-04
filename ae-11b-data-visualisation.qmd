@@ -14,6 +14,10 @@ editor_options:
 
 # Task 0: Load R packages
 
+1. Add a new code-chunk below the three outlined steps for Task 0
+2. Load the `gapminder`, `ggplot2` and `dplyr` R Packages
+3. Run the code contained in the code-chunk and fix any errors
+
 ```{r}
 
 library(gapminder)
@@ -24,26 +28,53 @@ library(dplyr)
 
 # Task 1: Data import
 
-```{r}
-
-```
+We are not importing any external data, we will use data from the `gapminder` R Package. The step of "Data import" is listed to remind us of this step in the data science lifecycle.
 
 # Task 2: Data tidying 
 
-```{r}
-
-```
-
+The data is tidy and we can directly work with it. The step is here as reminder.
 
 # Task 3: Data transformation
 
+## Data for 2007
+
+**Fill in the gaps**
+
+1. A code-chunk has already been created
+2. Start with the `gapminder` object
+3. Add the pipe operator (`%>%`) and on a new line use the `filter()` function to narrow down the data for observation of the year 2007
+4. Use the assignment operator (`<-`) to assign the data to an object named `gapminder_yr_2007`
+5. Run the code contained in the code-chunk and fix any errors
+6. Next to the code-chunk option `#| eval:` change the value from `false` to `true`
+7. Render
+8. Add, Commit, Push
+
 ```{r}
+#| eval: false
 
 # A subset only for 2007
 
 gapminder_yr_2007 <- gapminder %>% 
   filter(year == 2007)
+```
 
+## Median life expectancy and country frequency by continent
+
+**Fill in the gaps**
+
+1. A code-chunk has already been created
+2. Start with the `gapminder_yr_2007` object
+3. Add the pipe operator (`%>%`) and on a new line use the `group_by()` function to group the following operations by the variable continent. 
+4. Add the pipe operator (`%>%`) and on a new line use the `summarise()` function to summarise the data for the count and the median life expectancy.
+5. Use the assignment operator (`<-`) to assign the data to an object named `gapminder_summary_continent_2007`
+6. Run the code contained in the code-chunk and fix any errors
+7. Next to the code-chunk option `#| eval:` change the value from `false` to `true`
+8. Render
+9. Add, Commit, Push
+
+```{r}
+#| eval: false
+#| 
 # A subset for median life expectancy in 2007 by continent
 
 gapminder_summary_continent_2007 <- gapminder_yr_2007 %>% 
@@ -52,6 +83,25 @@ gapminder_summary_continent_2007 <- gapminder_yr_2007 %>%
     count = n(),
     lifeExp = median(lifeExp)
     )
+
+```
+
+## Median life expectancy by continent and year
+
+**Fill in the gaps**
+
+1. A code-chunk has already been created
+2. Start with the `gapminder` object
+3. Add the pipe operator (`%>%`) and on a new line use the `group_by()` function to group the following operations by the variables continent and year. 
+4. Add the pipe operator (`%>%`) and on a new line use the `summarise()` function to summarise the data for the median life expectancy and name the new colum 'lifeExp'.
+5. Use the assignment operator (`<-`) to assign the data to an object named `gapminder_summary_continent_year`
+6. Run the code contained in the code-chunk and fix any errors
+7. Next to the code-chunk option `#| eval:` change the value from `false` to `true`
+8. Render
+9. Add, Commit, Push
+
+```{r}
+#| eval: false
 
 # A subest for median life expectancy by continent and year
 
@@ -65,30 +115,17 @@ gapminder_summary_continent_year <- gapminder %>%
 
 ## Geoms
 
-### Scatterplot
-
-```{r}
-
-ggplot(data = gapminder_yr_2007,
-       mapping = aes(x = gdpPercap,
-                     y = lifeExp,
-                     size = pop,
-                     color = country)) +
-  geom_point(show.legend = FALSE) +
-  scale_size(range = c(2, 12)) +
-  scale_x_log10(labels = scales::label_log(), limits = c(100, 100000)) +
-  facet_wrap(~continent)
-
-```
-
-```{r}
-
-
-```
-
-
-
 ### Boxplot
+
+1. Add a new code-chunk below the three outlined steps for Task 0
+2. Use the `ggplot()` function and the `gapminder_yr_2007` object to create a boxplot with the following aesthetic mappings:
+
+- continent to the x-axis;
+- life expactancy to the y-axis;
+- continent to colours using the 'fill = continent' argument inside `aes()`
+
+3. Do not display (ignore) the outliers in the plot.
+4. Run the code contained in the code-chunk and fix any errors
 
 ```{r}
 
@@ -102,7 +139,14 @@ ggplot(data = gapminder_yr_2007,
 
 ### Timeseries plot
 
-- Connected scatterplot
+1. Add a new code-chunk below the three outlined steps for Task 0
+2. Use the `ggplot()` function and the `gapminder_summary_continent_year` object to create a connected scatterplot (also timeseries plot) using the `geom_line()` and `geom_point()`functions with the following aesthetic mappings:
+
+- year to the x-axis;
+- life expactancy to the y-axis;
+- continent to colours using the 'coor = continent' argument inside `aes()`
+
+3. Run the code contained in the code-chunk and fix any errors
 
 ```{r}
 
@@ -135,6 +179,29 @@ ggplot(data = gapminder_summary_continent_2007,
 ggplot(data = gapminder_yr_2007,
        mapping = aes(x = lifeExp, fill = continent)) +
   geom_histogram(col = "grey30", breaks = seq(40, 85, 2.5)) 
+
+```
+
+### Scatterplot
+
+1. Use the ggplot() function and assign `gapminder_yr_2007` to the data argument.
+2. Add the following aesthetic mappings:
+
+- x = gpdPercap
+- y = lifeExp
+- size = pop 
+
+```{r}
+
+ggplot(data = gapminder_yr_2007,
+       mapping = aes(x = gdpPercap,
+                     y = lifeExp,
+                     size = pop,
+                     color = country)) +
+  geom_point(show.legend = FALSE) +
+  scale_size(range = c(2, 12)) +
+  scale_x_log10(labels = scales::label_log(), limits = c(100, 100000)) +
+  facet_wrap(~continent)
 
 ```
 
