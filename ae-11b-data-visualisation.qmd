@@ -117,7 +117,7 @@ gapminder_summary_continent_year <- gapminder %>%
 
 ### Boxplot
 
-1. Add a new code-chunk below the three outlined steps for Task 0
+1. Add a new code-chunk below 
 2. Use the `ggplot()` function and the `gapminder_yr_2007` object to create a boxplot with the following aesthetic mappings:
 
 - continent to the x-axis;
@@ -139,12 +139,12 @@ ggplot(data = gapminder_yr_2007,
 
 ### Timeseries plot
 
-1. Add a new code-chunk below the three outlined steps for Task 0
+1. Add a new code-chunk below 
 2. Use the `ggplot()` function and the `gapminder_summary_continent_year` object to create a connected scatterplot (also timeseries plot) using the `geom_line()` and `geom_point()`functions with the following aesthetic mappings:
 
 - year to the x-axis;
 - life expactancy to the y-axis;
-- continent to colours using the 'coor = continent' argument inside `aes()`
+- continent to colours using the 'color = continent' argument inside `aes()`
 
 3. Run the code contained in the code-chunk and fix any errors
 
@@ -159,9 +159,17 @@ ggplot(data = gapminder_summary_continent_year,
 
 ```
 
-### Barplot 
+### Barplot
 
-- Frequency plot
+#### with `geom_col()`
+
+1. Add a new code-chunk below
+2. Use the `ggplot()` function and the `gapminder_summary_continent_2007` object to create a barplot  using the `geom_col()` function with the following aesthetic mappings:
+
+- continent to the x-axis;
+- count to then y-axis;
+
+3. Run the code contained in the code-chunk and fix any errors
 
 ```{r}
 
@@ -171,13 +179,47 @@ ggplot(data = gapminder_summary_continent_2007,
   geom_col()
 ```
 
+#### with `geom_bar()`
+
+1. Add a new code-chunk below
+2. Use the `ggplot()` function and the `gapminder_yr_2007` object to create a barplot using the `geom_bar()` function with the following aesthetic mappings:
+
+- continent to the x-axis;
+
+3. Run the code contained in the code-chunk and fix any errors
+4. The plot is identical to the plot created with `geom_col()`. Why? What does the `geom_bar()` function do? Write your text here: 
+
+```{r}
+ggplot(data = gapminder_yr_2007,
+       mapping = aes(x = continent)) +
+  geom_bar()
+
+```
 
 ### Histogram
+
+1. Add a new code-chunk below 
+2. Use the `ggplot()` function and the `gapminder_yr_2007` object to create a histogram using the `geom_histogram()` function with the following aesthetic mappings:
+
+- life expactancy to the x-axis;
+- continent to colours using the 'fill = continent' argument inside `aes()`
+
+3. Run the code contained in the code-chunk and fix any errors.
+4. Inside the `geom_histogram()` function, add the following arguments and values:
+
+- `col = "grey30"`
+- `breaks = seq(40, 85, 2.5)`
+
+5. Run the code contained in the code-chunk and fix any errors.
+
+6. Describe how the `geom_histogram()` function is similar to the `geom_bar()` function.
+7. What happens by adding the 'breaks' argument?
 
 ```{r}
 
 ggplot(data = gapminder_yr_2007,
-       mapping = aes(x = lifeExp, fill = continent)) +
+       mapping = aes(x = lifeExp, 
+                     fill = continent)) +
   geom_histogram(col = "grey30", breaks = seq(40, 85, 2.5)) 
 
 ```
