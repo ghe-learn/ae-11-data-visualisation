@@ -43,5 +43,5 @@ vignettes/*.pdf
 
 # Solutions
 
-# *-solutions.qmd
-# *-solutions.R
+*-solutions.qmd
+*-solutions.R
